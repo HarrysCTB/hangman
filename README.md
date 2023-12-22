@@ -1,6 +1,6 @@
 # 🎮 Jeu du Pendu en C
 
-Bienvenue dans notre version interactive et entièrement jouable en ligne de commande du jeu classique du pendu ! Ce projet a été soigneusement conçu en langage C pour offrir une expérience amusante et stimulante directement depuis votre terminal.
+Bienvenue dans ma version interactive et entièrement jouable en ligne de commande du jeu classique du pendu ! Ce projet a été soigneusement conçu en langage C pour offrir une expérience amusante et stimulante directement depuis votre terminal.
 
 ## 🌟 Introduction
 
