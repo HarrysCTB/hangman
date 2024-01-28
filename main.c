@@ -4,7 +4,54 @@
 #include <ctype.h>
 #include <stdbool.h>
 #include <time.h>
+#include <ncurses.h>
 #include "list.h"
+
+int isValidLine(char *line) {
+    char *copy = strdup(line);
+    char *field = strtok(copy, ",");
+    int fieldCount = 0;
+    while (field != NULL) {
+        fieldCount++;
+        if (fieldCount == 3) {
+            if (strcmp(field, "facile") != 0 && strcmp(field, "moyen") != 0 && strcmp(field, "difficile") != 0) {
+                free(copy);
+                return 0;
+            }
+        }
+        field = strtok(NULL, ",");
+    }
+    free(copy);
+    return fieldCount == 3;
+}
+
+void handleDictionaryErrors(char *dictionaryFile) {
+    FILE *file = fopen(dictionaryFile, "r");
+    if (file == NULL) {
+        printw("Erreur d'ouverture du fichier %s\n", dictionaryFile);
+        exit(1);
+    }
+
+    char line[256];
+    int lineNumber = 1;
+    int validWordsCount = 0;
+
+    while (fgets(line, sizeof(line), file)) {
+        if (!isValidLine(line)) {
+            printw("Erreur à la ligne %d: %s\n", lineNumber, line);
+        } else {
+            validWordsCount++;
+        }
+        lineNumber++;
+    }
+
+    if (validWordsCount == 0) {
+        printw("Erreur: Le dictionnaire ne contient aucun mot valide.\n");
+        exit(1);
+    }
+
+    fclose(file);
+}
 
 Element chooseRandomWord(Node *list) {
     int count = 0;
@@ -30,30 +77,30 @@ Element chooseRandomWord(Node *list) {
 }
 
 void printGallows(int errors) {
-    printf("================\n");
-    printf("    || //    |\n");
-    printf("    ||//     |\n");
-    printf("    ||/      |\n");
-    printf("    ||       %s\n", errors > 0 ? "O" : " ");
-    printf("    ||      %s%s%s\n", errors > 2 ? "/" : " ", errors > 1 ? "|" : " ", errors > 3 ? "\\" : " ");
-    printf("    ||       %s\n", errors > 4 ? "|" : " ");
-    printf("    ||      %s %s\n", errors > 5 ? "/" : " ", errors > 6 ? "\\" : " ");
-    printf("    ||\n");
-    printf("    ||\n");
-    printf("    ||\n");
-    printf("==========\n");
+    printw("================\n");
+    printw("    || //    |\n");
+    printw("    ||//     |\n");
+    printw("    ||/      |\n");
+    printw("    ||       %s\n", errors > 0 ? "O" : " ");
+    printw("    ||      %s%s%s\n", errors > 2 ? "/" : " ", errors > 1 ? "|" : " ", errors > 3 ? "\\" : " ");
+    printw("    ||       %s\n", errors > 4 ? "|" : " ");
+    printw("    ||      %s %s\n", errors > 5 ? "/" : " ", errors > 6 ? "\\" : " ");
+    printw("    ||\n");
+    printw("    ||\n");
+    printw("    ||\n");
+    printw("==========\n");
 }
 
 void printWordState(const char *word, const bool *guessed) {
-    printf("Word : ");
+    printw("Word : ");
     for (int i = 0; word[i] != '\0'; i++) {
         if (!isalpha(word[i])) {
-            printf("%c ", word[i]);
+            printw("%c ", word[i]);
         } else {
-            printf("%c ", guessed[i] ? word[i] : '*');
+            printw("%c ", guessed[i] ? word[i] : '*');
         }
     }
-    printf("\n");
+    printw("\n");
 }
 
 void playGame(const char *word, char *category) {
@@ -62,13 +109,15 @@ void playGame(const char *word, char *category) {
     memset(guessed, 0, sizeof(guessed));
 
     while (errors <= 6) {
-        printf("Category: %s\n", category);
+        clear(); // Efface l'écran avant de redessiner
+        printw("Category: %s\n", category);
         printGallows(errors);
         printWordState(word, guessed);
 
         char guess;
-        printf("Enter your guess: ");
-        scanf(" %c", &guess);
+        printw("Enter your guess: ");
+        refresh();
+        guess = getch(); // Lit un caractère
 
         bool found = false;
         for (int i = 0; word[i] != '\0'; i++) {
@@ -91,14 +140,15 @@ void playGame(const char *word, char *category) {
         }
 
         if (wordComplete) {
-            printf("Congratulations! You've guessed the word '%s'\n", word);
+            printw("Congratulations! You've guessed the word '%s'\n", word);
             break;
         }
     }
 
     if (errors > 6) {
+        clear();
         printGallows(errors);
-        printf("Game over! The word was '%s'\n", word);
+        printw("Game over! The word was '%s'\n", word);
     }
 }
 
@@ -140,7 +190,7 @@ Node *filterList(CategoryNode *categories, char *category, char *difficulty) {
         if (strcmp(current->element.difficulty, difficulty) == 0) {
             Node *newNode = malloc(sizeof(Node));
             if (newNode == NULL) {
-                printf("Erreur d'allocation de mémoire\n");
+                printw("Erreur d'allocation de mémoire\n");
                 return NULL;
             }
 
@@ -213,9 +263,14 @@ CategoryNode *readDictionary(char *filename) {
 }
 
 int main(int argc, char **argv) {
+    initscr(); // Initialise l'écran pour l'utilisation de ncurses
+    cbreak();  // Désactive la mise en tampon de ligne
+    noecho();  // Désactive l'affichage automatique des touches frappées
+
     char replay = 'Y';
 
     if (argc != 4) {
+        endwin(); // Restaure les paramètres normaux du terminal
         printf("Usage: ./hangman <dictionary.txt> <difficulty> <category>\n");
         return 1;
     }
@@ -225,33 +280,35 @@ int main(int argc, char **argv) {
     char *category = argv[3];
 
     if (strcmp(difficulty, "facile") != 0 && strcmp(difficulty, "moyen") != 0 && strcmp(difficulty, "difficile") != 0) {
+        endwin(); // Restaure les paramètres normaux du terminal
         printf("Invalid difficulty. Choose between 'facile', 'moyen', or 'difficile'.\n");
         return 1;
     }
 
     for (int i = 0; category[i] != '\0'; i++) {
         if (!isalpha(category[i])) {
+            endwin(); // Restaure les paramètres normaux du terminal
             printf("Invalid category. The category must only contain letters.\n");
             return 1;
         }
     }
-
+    handleDictionaryErrors(dictionaryFile);
     srand(time(NULL));
-    while (replay == 'Y') {
+    while (replay == 'Y' || replay == 'y') {
         CategoryNode *categories = readDictionary(dictionaryFile);
         Node *filteredWords = filterList(categories, category, difficulty);
         Element selectedElement = chooseRandomWord(filteredWords);
         if (selectedElement.name[0] != '\0') {
             playGame(selectedElement.name, category);
         } else {
-            printf("No words found for the selected category and difficulty.\n");
-            return 1;
+            printw("No words found for the selected category and difficulty.\n");
+            break;
         }
 
-        printf("Do you want to play again? (Y/N): ");
-        scanf(" %c", &replay);
-
+        printw("Do you want to play again? (Y/N): ");
+        refresh();
+        replay = getch();
     }
-
+    endwin(); // Restaure les paramètres normaux du terminal
     return 0;
 }
