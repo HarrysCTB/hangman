@@ -42,7 +42,9 @@ Le jeu du pendu est un classique des devinettes, et notre version en C ajoute un
 
 ## 🎥 Démonstration
 
-![Coming Soon](https://media.giphy.com/media/z6EG2su1f5jOTourNL/giphy.gif)
+<p align="center">
+  <img src="https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjVvaTV0aWllNnpteTg5dXdzbzV0b3k1eGc2cmZ1aTQwZnR2ZTVuZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/18yM4r6heA7hYB4PIC/giphy.gif" />
+</p>
 
 ## 🛠️ Technologie utilisée
 
