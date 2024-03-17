@@ -48,10 +48,6 @@ Le jeu du pendu est un classique des devinettes, et notre version en C ajoute un
 
 • C
 
-## ✨ Fonctionnalités
-
-![Coming Soon](https://media.giphy.com/media/z6EG2su1f5jOTourNL/giphy.gif)
-
 ## 📚 Documentation
 
 • [Documentation langage C](https://en.cppreference.com/w/c).
