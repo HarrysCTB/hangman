@@ -56,10 +56,6 @@ Le jeu du pendu est un classique des devinettes, et notre version en C ajoute un
 
 • [Documentation langage C](https://en.cppreference.com/w/c).
 
-## 👨‍💻 Contributeurs
-
-![Coming Soon](https://media.giphy.com/media/z6EG2su1f5jOTourNL/giphy.gif)
-
 ## 🤝 Contribuer
 
 Nous accueillons et apprécions les contributions de tous ceux qui souhaitent améliorer et enrichir le jeu du pendu en C. Que vous soyez un développeur expérimenté ou un débutant passionné, votre aide est la bienvenue. Voici comment vous pouvez contribuer :
